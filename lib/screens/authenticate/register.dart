@@ -1,6 +1,7 @@
 import 'package:coffee_app_firebase/services/auth.dart';
 import 'package:coffee_app_firebase/shared/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class Register extends StatefulWidget {
   final Function toggleview;
@@ -18,11 +19,12 @@ class _RegisterState extends State<Register> {
   String email = '';
   String password = '';
   String error = '';
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.brown[100],
+      backgroundColor: Colors.brown.withOpacity(0.1),
       appBar: AppBar(
           backgroundColor: Colors.brown[400],
           elevation: 0.0,
@@ -46,61 +48,70 @@ class _RegisterState extends State<Register> {
       body: Container(
           padding: const EdgeInsets.all(20),
           child: Form(
-            key: _formkey,
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                TextFormField(
-                  decoration: emailInputDecor,
-                  validator: (value) => value!.isEmpty ? "Email can't be empty":null,
-                  onChanged: (val) {
-                    setState(() {
-                      email = val;
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
-                TextFormField(
-                  decoration: passwordInputDecor,
-                  validator: (value) => value!.isEmpty ? "Password can't be empty":null,
-                  obscureText: true,
-                  onChanged: (val) {
-                    setState(() {
-                      password = val;
-                    });
-                  },
-                ),
-                const SizedBox(height: 20),
-                FilledButton(
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.brown,
-                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+              key: _formkey,
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    decoration: emailInputDecor,
+                    validator: (value) =>
+                        value!.isEmpty ? "Email can't be empty" : null,
+                    onChanged: (val) {
+                      setState(() {
+                        email = val;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    decoration: passwordInputDecor,
+                    validator: (value) =>
+                        value!.isEmpty ? "Password can't be empty" : null,
+                    obscureText: true,
+                    onChanged: (val) {
+                      setState(() {
+                        password = val;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Colors.brown,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10.0, horizontal: 30.0),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    "Sign Up",
-                    style: TextStyle(color: Colors.white, fontSize: 24),
-                  ),
-                  onPressed: () async{
-                    if (_formkey.currentState!.validate()) {
-                      try {
+                    child: const Text(
+                      "Sign Up",
+                      style: TextStyle(color: Colors.white, fontSize: 24),
+                    ),
+                    onPressed: () async {
+                      if (_formkey.currentState!.validate()) {
+                        EasyLoading.show(status: "Registering...");
+                        try {
                           await _auth.registerFirebaseUser(email, password);
                         } catch (e) {
                           setState(() {
                             error = e.toString();
                           });
+                        } finally {
+                          EasyLoading.dismiss();
                         }
-                    }
-                  },
-                ),
-                const SizedBox(height: 12,),
-                Text(error, style: const TextStyle(color: Colors.red),)
-              ],
-            )
-          )
-        ),
+                      }
+                    },
+                  ),
+                  const SizedBox(
+                    height: 12,
+                  ),
+                  Text(
+                    error,
+                    style: const TextStyle(color: Colors.red, fontSize: 32),
+                  )
+                ],
+              ))),
     );
   }
 }

@@ -10,12 +10,31 @@ class Wrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserCustom?>(context);
-
     // return home or auth widget conditionally
     if (user == null) {
-      return const Authenticate();
+      return Stack(
+        children: [
+          // Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'background.jpg', // Replace with your image path
+            ),
+          ),
+          const Authenticate()
+        ],
+      );
     } else {
-      return const Home();
+      return Stack(
+        children: [
+          // Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'background.jpg', // Replace with your image path
+            ),
+          ),
+          const Home()
+          ]
+      );
     }
   }
 }

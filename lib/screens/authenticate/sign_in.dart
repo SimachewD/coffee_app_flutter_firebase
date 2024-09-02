@@ -1,6 +1,7 @@
 import 'package:coffee_app_firebase/services/auth.dart';
 import 'package:coffee_app_firebase/shared/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class SignIn extends StatefulWidget {
   final Function toggleview;
@@ -18,11 +19,12 @@ class _SignInState extends State<SignIn> {
   String email = '';
   String password = '';
   String error = '';
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.brown[100],
+      backgroundColor: Colors.brown.withOpacity(0.1),
       appBar: AppBar(
         backgroundColor: Colors.brown[400],
         elevation: 0.0,
@@ -50,7 +52,8 @@ class _SignInState extends State<SignIn> {
                 const SizedBox(height: 20),
                 TextFormField(
                   decoration: emailInputDecor,
-                  validator: (value) => value!.isEmpty ? "Enter your email" : null,
+                  validator: (value) =>
+                      value!.isEmpty ? "Enter your email" : null,
                   onChanged: (val) {
                     setState(() {
                       email = val;
@@ -61,7 +64,8 @@ class _SignInState extends State<SignIn> {
                 TextFormField(
                   decoration: passwordInputDecor,
                   obscureText: true,
-                  validator: (value) => value!.isEmpty ? "Enter your password" : null,
+                  validator: (value) =>
+                      value!.isEmpty ? "Enter your password" : null,
                   onChanged: (val) {
                     setState(() {
                       password = val;
@@ -72,7 +76,8 @@ class _SignInState extends State<SignIn> {
                 FilledButton(
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.brown,
-                    padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 30.0),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10.0, horizontal: 30.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8.0),
                     ),
@@ -83,12 +88,23 @@ class _SignInState extends State<SignIn> {
                   ),
                   onPressed: () async {
                     if (_formkey.currentState!.validate()) {
+                      setState(() {
+                        isLoading = true;
+                      });
+                      if (isLoading) {
+                        EasyLoading.show(status: "Signing in...");
+                      }
                       try {
                         await _auth.signIn(email, password);
                       } catch (e) {
                         setState(() {
                           error = e.toString();
                         });
+                      } finally {
+                        setState(() {
+                          isLoading = false;
+                        });
+                        EasyLoading.dismiss();
                       }
                     }
                   },
@@ -98,12 +114,11 @@ class _SignInState extends State<SignIn> {
                 ),
                 Text(
                   error,
-                  style: const TextStyle(color: Colors.red, fontSize: 14),
+                  style: const TextStyle(color: Colors.red, fontSize: 32),
                 ),
               ],
             ),
-          )
-          ),
+          )),
     );
   }
 }

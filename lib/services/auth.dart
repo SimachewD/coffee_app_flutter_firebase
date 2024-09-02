@@ -1,4 +1,5 @@
 import 'package:coffee_app_firebase/models/user.dart';
+import 'package:coffee_app_firebase/services/database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -30,7 +31,9 @@ class AuthService {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
           email: email, password: password);
-      User? user = result.user;
+      User user = result.user!;
+      DatabaseService(uid: user.uid)
+          .updateUserData('2', 'new user coffee', 70);
       return _userFromFirebase(user);
     } on FirebaseAuthException catch (e) {
       print(e.code);
@@ -38,7 +41,9 @@ class AuthService {
         case 'invalid-email':
           throw ("Invalid email");
         case 'invalid-credential':
-          throw "Wrong-password";
+          throw "Invalid-credintials";
+        case 'network-request-failed':
+          throw "Please check your connection";
         default:
           return 'An unknown error occurred: ${e.message}';
       }
